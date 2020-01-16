@@ -1,0 +1,8 @@
+.vscode
+.vscode
+*.exe
+*.json
+*.exe
+.vscode/launch.json
+*.json
+groupplot_initseed0_C100.000000_mu0.100000_theta0.250000_pKill0.200000_pMute0.010000_pInit500_L20_ite1000.csv
