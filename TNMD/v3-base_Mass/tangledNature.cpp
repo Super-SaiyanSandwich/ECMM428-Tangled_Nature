@@ -12,8 +12,8 @@
 #include <fstream>
 #include <vector>
 #include <algorithm>
-#include <sys/time.h>
 #include <stdio.h>
+#include <io.h>
 #include <bitset>
 #include <stdlib.h>
 #include <random>
@@ -360,22 +360,31 @@ int main(int argc, char *argv[]){
     double lgen = Npop / pKill;    //length of current generation
 	int model_Num = 0;
 
-    string filename =  "groupplot_initseed" + to_string(it);
-    filename += "_C"+ to_string(C); 
-	filename += "_mu"+ to_string(mu); 
-	filename += "_theta" + to_string(theta); 
-	filename += "_pKill" + to_string(pKill); 
-	filename += "_pMute" + to_string(pMute); 
-    filename += "_pInit" + to_string(Npop_INITIAL);
- 	filename += "_L" + to_string(L);
-	filename += "_ite" + to_string(iterations);
-	filename +=".csv";
 
-    filename = path + filename;
-    ofstream pop_file; pop_file.open (filename.c_str());
+
+
+    string folder_Name =  "groupplot_initseed" + to_string(it);
+    folder_Name += "_C"+ to_string(C); 
+	folder_Name += "_mu"+ to_string(mu); 
+	folder_Name += "_theta" + to_string(theta); 
+	folder_Name += "_pKill" + to_string(pKill); 
+	folder_Name += "_pMute" + to_string(pMute); 
+    folder_Name += "_pInit" + to_string(Npop_INITIAL);
+ 	folder_Name += "_L" + to_string(L);
+	folder_Name += "_ite" + to_string(iterations);
+
+	mkdir((path + folder_Name).c_str());
+
+	string filename = "";
+	ofstream pop_file;
+
+    
+	do{
+	filename = path + folder_Name + "\\" + to_string(model_Num) + ".csv";
+    pop_file.open (filename.c_str());
 
     pop_file << "id,generation,Npop,diversity,encountered,core_pop,core_size" << endl;
-	do{
+
 	std::cout << "BEGINNING ITERATION " << model_Num << endl;
     do{
 		list<Species>::iterator sID = kill();       //choose an individual and kill with prob pkill
@@ -400,9 +409,10 @@ int main(int argc, char *argv[]){
 	lgen = Npop / pKill;
 	t = 0;
 	t_gens = 0;
+	pop_file.close();
 
 	}while(model_Num < iterations);
-	pop_file.close();  //Closes the file stream.
+	  //Closes the file stream.
 	//core_file.close();
 
 	return 0;	

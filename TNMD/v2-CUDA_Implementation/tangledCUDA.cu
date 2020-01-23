@@ -22,8 +22,10 @@
 #include <cuda.h>
 #include <curand.h>
 #include <curand_kernel.h>
-#include <cuda_runtime.h>
-#include <stdio.h>
+#include "cuda_runtime.h"
+
+
+//#include "tangledCUDA.cuh"
 
 ////////////////////////////
 
@@ -93,7 +95,7 @@ inline int random_species(){
 
 ///////////////////////////
 // Species Object:
-
+   // MOVED TO HEADER
 class Species {
 public:
 	int sID;			//species ID
@@ -101,18 +103,21 @@ public:
 	int population;		//number of individuals belonging this species
 	
 	//initialise
-	__device__ Species(int sID_, int pop_) : sID(sID_), population(pop_) {
+	__host__ Species(int sID_, int pop_) : sID(sID_), population(pop_) {
 		bitset<L> tmp (sID);
 		bin_sID = tmp;
-	}
-
+    }
+    
+    __device__ int getPop(){
+        return population;
+    }
 };
+
+
 
 list<Species> ecology;  //List of extant species
 unordered_set<int> encountered; //List of all encountered species
 
-cudaMalloc(ecology, 1000 * sizeof(Species));
-cudaMalloc(encountered, N / 2 * sizeof(int));
 
 list<*Species>::iterator searchNode(list<*Species> ecology, int n) {
 	for (list<Species>::iterator cur=&ecology.begin(); cur != &ecology.end(); ++cur){
