@@ -49,7 +49,7 @@ double mu = 0.1; 	            //environmental scaling factor - "resource abundan
 const int Npop_INITIAL = 500;   //starting population
 int Npop = Npop_INITIAL;        //total population tracker
 
-const int MAX_GENS = 5000;      //termination condition
+const int MAX_GENS = 10000;      //termination condition
 
 const double theta = 0.25;      //density of non-zero interspecies interactions
 
@@ -340,7 +340,7 @@ int main(int argc, char *argv[]){
 
     if(argc < 2)
     {
-        cerr << "No Seed or Path Inputted, Assuming Default (0, .\\)" << endl;
+        cerr << "No Seed or Path Inputted, Assuming Default (0, .\\, 1)" << endl;
 
         it = 0;
         seed = 12345;
@@ -370,6 +370,7 @@ int main(int argc, char *argv[]){
 	folder_Name += "_pKill" + to_string(pKill); 
 	folder_Name += "_pMute" + to_string(pMute); 
     folder_Name += "_pInit" + to_string(Npop_INITIAL);
+	folder_Name += "_mGen" + to_string(MAX_GENS);
  	folder_Name += "_L" + to_string(L);
 	folder_Name += "_ite" + to_string(iterations);
 
@@ -383,7 +384,7 @@ int main(int argc, char *argv[]){
 	filename = path + folder_Name + "\\" + to_string(model_Num) + ".csv";
     pop_file.open (filename.c_str());
 
-    pop_file << "id,generation,Npop,diversity,encountered,core_pop,core_size" << endl;
+    pop_file << "ID,generation,Npop,diversity,encountered,core_pop,core_size" << endl;
 
 	std::cout << "BEGINNING ITERATION " << model_Num << endl;
     do{
