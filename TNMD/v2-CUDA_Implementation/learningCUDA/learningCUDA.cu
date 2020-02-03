@@ -117,12 +117,12 @@ int main(void)
   cudaMallocManaged(&d_state, sizeof(curandState));
 
   // initialize x and y arrays on the host
-  // for (int i = 0; i < N; i++) {
-  //   x[i] = 1.0f;
-  //   y[i] = 2.0f;
-  // }
-  std::fill(x,x + N, 1.0f);
-  std::fill(y,y + N, 2.0f);
+  for (int i = 0; i < N; i++) {
+    x[i] = 1.0f;
+    y[i] = 2.0f;
+  }
+  // std::fill(x,x + N, 1.0f);
+  // std::fill(y,y + N, 2.0f);
 
   *(z) = x;
   *(z+1) = y;

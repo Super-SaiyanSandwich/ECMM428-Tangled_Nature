@@ -1,11 +1,11 @@
-const FILENAME = "groupplot_initseed100_C100.000000_mu0.100000_theta0.250000_pKill0.200000_pMute0.010000_pInit500_mGen10000_L20_ite100\\__AVERAGE.csv"
+const FILENAME = "groupplot_initseed134_C100.000000_mu0.100000_theta0.250000_pKill0.200000_pMute0.010000_pInit500_mGen10000_L20_ite1000\\__AVERAGE.csv"
 
 console.log("BEGIN");
     
     // set the dimensions and margins of the graph
-    var margin = {top: 10, right: 30, bottom: 30, left: 60},
+    var margin = {top: 30, right: 30, bottom: 60, left: 70},
         width = 1500 - margin.left - margin.right,
-        height = 800 - margin.top - margin.bottom;
+        height = 900 - margin.top - margin.bottom;
     
     // ADD SVG CANVAS
     var svg = d3.select("#my_dataviz")
@@ -63,5 +63,29 @@ console.log("BEGIN");
         svg.append("g")
           .attr("class", "y axis")
           .call(axisY);
+
+	svg.append("text")             
+           .attr("transform",
+            "translate(" + (width/2) + " ," + 
+                           (height + margin.top + 20) + ")")
+            .style("text-anchor", "middle")
+            .text("Generation (Log Scale)");
+
+	svg.append("text")
+	  .attr("transform", "rotate(-90)")
+          .attr("y", 0 - margin.left)
+          .attr("x",0 - (height / 2))
+          .attr("dy", "1em")
+          .style("text-anchor", "middle")
+          .text("Average Population");  
+
+
+	svg.append("text")
+        .attr("x", (width / 2))             
+        .attr("y", 0 - (margin.top / 2))
+        .attr("text-anchor", "middle")  
+        .style("font-size", "16px") 
+        .style("text-decoration", "underline")  
+        .text("Progression of Average Population for 1000 Tangled Nature Models (seed: 134)");
 
         });
