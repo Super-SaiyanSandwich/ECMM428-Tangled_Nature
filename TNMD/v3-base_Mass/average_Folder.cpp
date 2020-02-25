@@ -87,9 +87,9 @@ int main(int argc, char *argv[]){
     cout << "Saving average file\n"; 
 
     string filename = path + "__AVERAGE.csv";
-    ofstream pop_file;
-    pop_file << "generation,Npop"; 
+    ofstream pop_file;    
     pop_file.open(filename);
+    pop_file << "generation,Npop" << endl; 
     for (int i = 0; i < m_Gen; i++)
     {
         pop_file << to_string(i+1) << ", " << totals[i] << endl;

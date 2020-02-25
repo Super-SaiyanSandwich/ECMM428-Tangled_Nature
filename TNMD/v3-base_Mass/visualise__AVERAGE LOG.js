@@ -1,4 +1,5 @@
-const FILENAME = "groupplot_initseed134_C100.000000_mu0.100000_theta0.250000_pKill0.200000_pMute0.010000_pInit500_mGen10000_L20_ite1000\\__AVERAGE.csv"
+const FILENAME = "groupplot_initseed100_C100.000000_mu0.100000_theta0.250000_pKill0.200000_pMute0.010000_pInit500_mGen10000_L20_ite100\\__AVERAGE.csv"
+
 
 console.log("BEGIN");
     
@@ -29,7 +30,7 @@ console.log("BEGIN");
       .x(function(d) { return x(d.generation); })
       .y(function(d) { return y(d.Npop); });
 
-
+    d3.re
 
 
     //Read the data

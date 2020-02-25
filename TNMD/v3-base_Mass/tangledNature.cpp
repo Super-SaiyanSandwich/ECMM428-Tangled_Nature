@@ -41,7 +41,7 @@ double C = 100; 			    //scaling parameter for interspecies interactions
 double sigma = 0;			    //scaling parameter for species environment interactions. NOT INCLUDED IN BASE MODEL
 
 double pKill = 0.2;			    //probability of killing an individual
-double pMute = 0.01;            //probability of a mutation occurring
+double pMute = 0.025;            //probability of a mutation occurring
 double pRevive = 0;             //probability of population 0 species reviving. NOT INCLUDED IN BASE MODEL
 
 double mu = 0.1; 	            //environmental scaling factor - "resource abundance"
