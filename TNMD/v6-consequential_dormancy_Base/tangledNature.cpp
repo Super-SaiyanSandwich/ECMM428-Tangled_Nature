@@ -44,10 +44,14 @@ double pKill = 0.2;			    //probability of killing an individual
 double pMute = 0.01;            //probability of a mutation occurring
 double pRevive = 0;             //probability of population 0 species reviving. NOT INCLUDED IN BASE MODEL
 
-double mu = 0.1; 	            //environmental scaling factor - "resource abundance"
+double Amu = 0.1; 	            //environmental scaling factor - "resource abundance"
+double Smu = 0.01; 	            //environmental scaling factor - "resource abundance"
 
 const int Npop_INITIAL = 500;   //starting population
-int Npop = Npop_INITIAL;        //total population tracker
+int Apop = Npop_INITIAL;        //total population tracker
+int Spop = 0;
+
+const double DORM_BOUND = 0.3;
 
 const int MAX_GENS = 5000;      //termination condition
 
@@ -90,10 +94,12 @@ class Species {
 public:
 	int sID;			//species ID
 	bitset<L> bin_sID;	//binary genome - sID in binary
-	int population;		//number of individuals belonging this species
+	int population;
+	int awake_population; //number of individuals non-dormant belonging this species
+	int asleep_population; //number of individuals dormant belonging this species 
 	
 	//initialise
-	Species(int sID_, int pop_) : sID(sID_), population(pop_) {
+	Species(int sID_, int pop_) : sID(sID_), awake_population(pop_), population(pop_) {
 		bitset<L> tmp (sID);
 		bin_sID = tmp;
 	}	
@@ -101,6 +107,8 @@ public:
 
 list<Species> ecology;  //List of extant species
 unordered_set<int> encountered; //List of all encountered species
+
+
 
 list<Species>::iterator searchNode(list<Species> &ecology, int n) {
 	for (list<Species>::iterator cur=ecology.begin(); cur != ecology.end(); ++cur){
@@ -127,7 +135,7 @@ inline void initialise_model(int model_seed){
     mt_generator = mt19937(model_seed);
 
     double oC = C;
-	double omu = sqrt(mu);
+	double omu = sqrt(Amu);
     
     //Generate the interaction matrix
 	normal_distribution<double> distribution(0.0, 1.0);
@@ -149,11 +157,11 @@ inline list<Species>::iterator kill(){
 	double rand = mt_rand();
 	double sum = 0;
 	for (list<Species>::iterator cur=ecology.begin(); cur != ecology.end(); ++cur){
-		sum += cur->population;  //find total population of currently iterated species
-		if( Npop*rand <= sum ){  //gives each "individual" an equal chance to be chosen
+		sum += cur->awake_population;  //find total population of currently iterated species
+		if( Apop*rand <= sum ){  //gives each "individual" an equal chance to be chosen
 			if( mt_rand() < pKill ){	//INIDIVIDUAL CHOSEN
-				--cur->population;		//reduce species population by 1
-                --Npop;	 //update total population
+				--cur->awake_population;		//reduce specie's awake population by 1
+                --Apop;	 //update total awake population
 
 				if(cur->population == 0){  //if species is now extinct, remove from list
 					ecology.erase(cur);
@@ -168,7 +176,7 @@ inline list<Species>::iterator kill(){
 	}
 
     // ERROR HANDLING (NO INDIVIDUAL CHOSEN)
-	cerr << "kill failed! Npop = " <<  Npop << endl;
+	cerr << "kill failed! Npop = " <<  Apop << endl;
 	cerr << "rand " << rand << endl;
 	exit(1);
 }
@@ -181,13 +189,13 @@ inline list<Species>::iterator choose(){
 	int sum = 0;
 	for (list<Species>::iterator cur=ecology.begin(); cur != ecology.end(); ++cur){
 		sum += cur->population;
-		if( Npop*rand <= sum ){
+		if( Apop*rand <= sum ){
 			return cur;
 		}
 	}
 	
     // ERROR HANDLING (NO INDIVIDUAL CHOSEN)
-	cerr << "choose failed! Npop = " <<  Npop << endl;
+	cerr << "choose failed! Npop = " <<  Apop << endl;
 	cerr << "rand " << rand << endl;
 	exit(1);
 }
@@ -206,7 +214,7 @@ inline double calc_HI(list<Species>::iterator elem){
 			bitset<L> bin_inter = cur->bin_sID ^ elem->bin_sID;		                //trick to implement coupling matrix
 			long int s_inter = bin_inter.to_ulong();				
 			if( Jran1[s_inter] ){
-				sum += Jran2[s_inter] * Jran3[cur->sID] * cur->population;	//inter species
+				sum += Jran2[s_inter] * Jran3[cur->sID] * cur->awake_population;	//inter species
 			}
 		}
 	}
@@ -214,7 +222,7 @@ inline double calc_HI(list<Species>::iterator elem){
 }
 
 inline double calc_H(list<Species>::iterator elem){
-	return calc_HI(elem)/Npop - mu*Npop;
+	return calc_HI(elem)/Apop - Amu*Apop - Smu*Spop;
 }
 
 //reproduction probability	
@@ -241,7 +249,7 @@ inline bitset<L> mutateOffspring(list<Species>::iterator elem){
 
 //generate offspring of species 'elem' with mutation
 inline void asexual(list<Species>::iterator elem){
-	++Npop; 	        //1 new individual (overall)
+	++Apop; 	        //1 new individual (overall)
     --elem->population; //kill individual spliting (microbe asexual reproduction)
 
 	bitset<L> bin_newA = mutateOffspring(elem);	//new individual genomes
@@ -294,7 +302,7 @@ inline void print_file(ofstream &pop_file, double percent=0.05){ //percent = con
 		}
 	}
 	//generation number   number of individuals    number of species    individuals in core     species in core
-	pop_file << t_gens << "," << Npop << "," << diversity << "," << encountered.size() << "," << core_pop << "," << core_size << endl;			
+	pop_file << t_gens << "," << Apop << "," << diversity << "," << encountered.size() << "," << core_pop << "," << core_size << endl;			
 
 }
 
@@ -332,11 +340,11 @@ int main(int argc, char *argv[]){
 
     initialise_model(seed);
     int t = 0;                     //intra-generational counter
-    double lgen = Npop / pKill;    //length of current generation
+    double lgen = Apop / pKill;    //length of current generation
 
     string filename =  "popplot_seed" + to_string(it);
     filename += "_C"+ to_string(C); 
-	filename += "_mu"+ to_string(mu); 
+	filename += "_mu"+ to_string(Amu); 
 	filename += "_theta" + to_string(theta); 
 	filename += "_pKill" + to_string(pKill); 
 	filename += "_pMute" + to_string(pMute); 
@@ -351,7 +359,7 @@ int main(int argc, char *argv[]){
 
     do{
 		list<Species>::iterator sID = kill();       //choose an individual and kill with prob pkill
-        if(Npop == 0){ break; }                     //if population totally killed off, end
+        if(Apop == 0){ break; }                     //if population totally killed off, end
 		if(sID == ecology.end()) sID = choose();	//if we killed the individual, choose another one
 		if( mt_rand() < poff(sID) ){				//individual reproduces with probability poff
 			asexual(sID);		                    //reproduce asexually
@@ -360,7 +368,7 @@ int main(int argc, char *argv[]){
 
 		
 		if(t >= lgen){	//generation is over
-			t = 0; ++t_gens; lgen = Npop / pKill; //recalculate generation length
+			t = 0; ++t_gens; lgen = Apop / pKill; //recalculate generation length
 			print_file(pop_file);		
 		}
 		
