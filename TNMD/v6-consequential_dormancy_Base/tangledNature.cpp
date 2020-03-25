@@ -48,8 +48,9 @@ double Amu = 0.1; 	            //environmental scaling factor - "resource abunda
 double Smu = 0.01; 	            //environmental scaling factor - "resource abundance"
 
 const int Npop_INITIAL = 500;   //starting population
-int Apop = Npop_INITIAL;        //total population tracker
-int Spop = 0;
+int Npop = Npop_INITIAL;  		//total population tracker
+int Apop = Npop_INITIAL;        //total awake population tracker
+int Spop = 0;					//total dormant population tracker
 
 const double DORM_BOUND = 0.3;
 
@@ -108,7 +109,37 @@ public:
 list<Species> ecology;  //List of extant species
 unordered_set<int> encountered; //List of all encountered species
 
+inline void addPop(Species* s){
+	s->awake_population++;
+	s->population++;
 
+	Npop++;
+	Apop++;
+} 
+
+inline void sleepPop(Species* s){
+	s->awake_population--;
+	s->asleep_population++;
+
+	Spop++;
+	Apop--;
+} 
+
+inline void wakePop(Species* s){
+	s->awake_population++;
+	s->asleep_population--;
+
+	Spop--;
+	Apop++;
+} 
+
+inline void removePop(Species* s){
+	s->awake_population--;
+	s->population--;
+
+	Npop--;
+	Apop--;
+} 
 
 list<Species>::iterator searchNode(list<Species> &ecology, int n) {
 	for (list<Species>::iterator cur=ecology.begin(); cur != ecology.end(); ++cur){
@@ -289,20 +320,20 @@ inline void print_file(ofstream &pop_file, double percent=0.05){ //percent = con
 	int max = 0; 
 	int diversity = 0;
 	for (list<Species>::iterator cur=ecology.begin(); cur != ecology.end(); ++cur){
-		if( cur->population >  max ){ max = cur->population; }
+		if( cur->awake_population >  max ){ max = cur->awake_population; }
 		++diversity;
 	}
 
 	int core_pop = 0;
 	int core_size = 0;
 	for (list<Species>::iterator cur=ecology.begin(); cur != ecology.end(); ++cur){
-		if( cur->population > percent * (double) max ){ 
-			core_pop += cur->population;
+		if( cur->awake_population > percent * (double) max ){ 
+			core_pop += cur->awake_population;
 			++core_size;
 		}
 	}
-	//generation number   number of individuals    number of species    individuals in core     species in core
-	pop_file << t_gens << "," << Apop << "," << diversity << "," << encountered.size() << "," << core_pop << "," << core_size << endl;			
+	//generation number   number of individuals, awake, asleep 		   number of extant species,  number of species seen, individuals in core,   species in core
+	pop_file << t_gens << "," << Npop << "," << Apop << "," << Spop << "," << diversity << "," << encountered.size() << "," << core_pop << "," << core_size << endl;			
 
 }
 
@@ -342,7 +373,7 @@ int main(int argc, char *argv[]){
     int t = 0;                     //intra-generational counter
     double lgen = Apop / pKill;    //length of current generation
 
-    string filename =  "popplot_seed" + to_string(it);
+    string filename =  "dormplot_seed" + to_string(it);
     filename += "_C"+ to_string(C); 
 	filename += "_mu"+ to_string(Amu); 
 	filename += "_theta" + to_string(theta); 
@@ -355,13 +386,18 @@ int main(int argc, char *argv[]){
     filename = path + filename;
     ofstream pop_file; pop_file.open (filename.c_str());
 
-    pop_file << "generation,Npop,diversity,encountered,core_pop,core_size" << endl;
+    pop_file << "generation,Npop,Apop,Spop,diversity,encountered,core_pop,core_size" << endl;
 
     do{
 		list<Species>::iterator sID = kill();       //choose an individual and kill with prob pkill
-        if(Apop == 0){ break; }                     //if population totally killed off, end
+        
+		if(Npop == 0){ break; }                     //if population totally killed off, end
+		
 		if(sID == ecology.end()) sID = choose();	//if we killed the individual, choose another one
-		if( mt_rand() < poff(sID) ){				//individual reproduces with probability poff
+		
+		double poff = poff(sID);
+
+		if( mt_rand() < poff ){				//individual reproduces with probability poff
 			asexual(sID);		                    //reproduce asexually
 		}
 		++t; //counter

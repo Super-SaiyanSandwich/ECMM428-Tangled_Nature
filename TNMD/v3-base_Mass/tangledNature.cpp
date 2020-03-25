@@ -40,11 +40,11 @@ int t_gens = 0;				    // t - current generation number
 double C = 100; 			    //scaling parameter for interspecies interactions
 double sigma = 0;			    //scaling parameter for species environment interactions. NOT INCLUDED IN BASE MODEL
 
-double pKill = 0.2;			    //probability of killing an individual
-double pMute = 0.025;            //probability of a mutation occurring
+double pKill = 0.20;			    //probability of killing an individual
+double pMute = 0.01;            //probability of a mutation occurring
 double pRevive = 0;             //probability of population 0 species reviving. NOT INCLUDED IN BASE MODEL
 
-double mu = 0.1; 	            //environmental scaling factor - "resource abundance"
+double mu = 0.05; 	            //environmental scaling factor - "resource abundance"
 
 const int Npop_INITIAL = 500;   //starting population
 int Npop = Npop_INITIAL;        //total population tracker
