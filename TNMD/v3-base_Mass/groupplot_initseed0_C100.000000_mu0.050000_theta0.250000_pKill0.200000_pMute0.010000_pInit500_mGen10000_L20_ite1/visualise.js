@@ -1,5 +1,4 @@
-const FILENAME = "TNMD/v2-CUDA_Implementation/popplot_seed0_C100.000000_mu0.100000_theta0.250000_pKill0.200000_pMute0.010000_pInit500_L20.csv";
-const FILENAMEMIRROR = "TNMD/v2-CUDA_Implementation/popplot_seed0_C100.000000_mu0.100000_theta0.250000_pKill0.200000_pMute0.010000_pInit500_L20_mirror.csv";
+const FILENAME = "0.csv";
 
 
 console.log("BEGIN");

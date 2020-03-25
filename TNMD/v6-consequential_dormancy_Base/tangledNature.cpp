@@ -40,9 +40,11 @@ int t_gens = 0;				    // t - current generation number
 double C = 100; 			    //scaling parameter for interspecies interactions
 double sigma = 0;			    //scaling parameter for species environment interactions. NOT INCLUDED IN BASE MODEL
 
-double pKill = 0.2;			    //probability of killing an individual
+double pKill = 0.20;			    //probability of killing an individual
 double pMute = 0.01;            //probability of a mutation occurring
-double pRevive = 0;             //probability of population 0 species reviving. NOT INCLUDED IN BASE MODEL
+
+double pSleep = 0.0;            
+double pWake = 1.1;
 
 double Amu = 0.1; 	            //environmental scaling factor - "resource abundance"
 double Smu = 0.01; 	            //environmental scaling factor - "resource abundance"
@@ -52,7 +54,7 @@ int Npop = Npop_INITIAL;  		//total population tracker
 int Apop = Npop_INITIAL;        //total awake population tracker
 int Spop = 0;					//total dormant population tracker
 
-const double DORM_BOUND = 0.3;
+//const double DORM_BOUND = 0.3;
 
 const int MAX_GENS = 5000;      //termination condition
 
@@ -77,7 +79,7 @@ inline double mt_rand(){
 }
 
 inline double mt_rand_sym(){
-    return 2.0*mt_generator()*mt_normalise - 1.0;
+    return 2.0f*mt_generator()*mt_normalise - 1.0;
 }
 
 inline int random_species(){
@@ -90,6 +92,7 @@ inline int random_species(){
 
 ///////////////////////////
 // Species Object:
+// EXTENDED FROM BASE TO INCLUDE DORMANT POP
 
 class Species {
 public:
@@ -165,14 +168,14 @@ inline void initialise_model(int model_seed){
     default_random_engine generator(model_seed + 123);
     mt_generator = mt19937(model_seed);
 
-    double oC = C;
+    double oC = sqrt(C);
 	double omu = sqrt(Amu);
     
     //Generate the interaction matrix
 	normal_distribution<double> distribution(0.0, 1.0);
     for(int i=0; i<N; i++){
 		( mt_rand() < theta ) ? Jran1[i] = true : Jran1[i] = false;
-		Jran2[i] = distribution(generator);
+		Jran2[i] = oC*distribution(generator);
 		Jran3[i] = oC*distribution(generator);
     }
 
@@ -191,8 +194,7 @@ inline list<Species>::iterator kill(){
 		sum += cur->awake_population;  //find total population of currently iterated species
 		if( Apop*rand <= sum ){  //gives each "individual" an equal chance to be chosen
 			if( mt_rand() < pKill ){	//INIDIVIDUAL CHOSEN
-				--cur->awake_population;		//reduce specie's awake population by 1
-                --Apop;	 //update total awake population
+				removePop(&*cur);
 
 				if(cur->population == 0){  //if species is now extinct, remove from list
 					ecology.erase(cur);
@@ -207,7 +209,9 @@ inline list<Species>::iterator kill(){
 	}
 
     // ERROR HANDLING (NO INDIVIDUAL CHOSEN)
-	cerr << "kill failed! Npop = " <<  Apop << endl;
+	
+	cerr << "kill failed! Apop = " <<  Apop << endl;
+	cerr << "Npop =" << Npop << endl;
 	cerr << "rand " << rand << endl;
 	exit(1);
 }
@@ -253,7 +257,7 @@ inline double calc_HI(list<Species>::iterator elem){
 }
 
 inline double calc_H(list<Species>::iterator elem){
-	return calc_HI(elem)/Apop - Amu*Apop - Smu*Spop;
+	return calc_HI(elem)/Apop - Amu*Apop; //- Smu*Spop;
 }
 
 //reproduction probability	
@@ -280,8 +284,7 @@ inline bitset<L> mutateOffspring(list<Species>::iterator elem){
 
 //generate offspring of species 'elem' with mutation
 inline void asexual(list<Species>::iterator elem){
-	++Apop; 	        //1 new individual (overall)
-    --elem->population; //kill individual spliting (microbe asexual reproduction)
+	removePop(&*elem);
 
 	bitset<L> bin_newA = mutateOffspring(elem);	//new individual genomes
     bitset<L> bin_newB = mutateOffspring(elem);
@@ -292,10 +295,10 @@ inline void asexual(list<Species>::iterator elem){
 			ecology.emplace_front(bin_newA.to_ulong(), 1); //add to lsit
 			encountered.insert(bin_newA.to_ulong());
 		} else { //if new species already on list
-			++tmpNode->population; //increase that species count by 1
+			addPop(&*tmpNode);
 		}	
 	} else {  //no mutation
-		++elem->population; //increase species count by 1
+		addPop(&*elem); //increase species count by 1
 	}
 
     if( bin_newB != elem->bin_sID ){ //if new species
@@ -305,14 +308,24 @@ inline void asexual(list<Species>::iterator elem){
 			encountered.insert(bin_newB.to_ulong());
             
 		} else { //if new species already on list
-			++tmpNode->population; //increase that species count by 1
+			addPop(&*tmpNode); //increase that species count by 1
 		}	
-	} else {  //no mutation
-		++elem->population; //increase species count by 1
+	} else {  //no mutation	
+		addPop(&*elem); //increase species count by 1
 	}
 }
 
+inline void fall_Dormant(list<Species>::iterator elem){
+	if (elem->awake_population > 0){
+		sleepPop(&*elem);
+	}
+}
 
+inline void wake_Up(list<Species>::iterator elem){
+	if (elem->asleep_population > 0){
+		wakePop(&*elem);
+	}	
+}
 
 
 inline void print_file(ofstream &pop_file, double percent=0.05){ //percent = condition for being in the core
@@ -353,6 +366,7 @@ int main(int argc, char *argv[]){
     int it;
     int seed;
     string path;
+	bool verbose = false;
 
     if(argc < 2)
     {
@@ -379,6 +393,8 @@ int main(int argc, char *argv[]){
 	filename += "_theta" + to_string(theta); 
 	filename += "_pKill" + to_string(pKill); 
 	filename += "_pMute" + to_string(pMute); 
+	filename += "_pSleep" + to_string(pSleep);
+	filename += "_pWake" + to_string(pWake);
     filename += "_pInit" + to_string(Npop_INITIAL);
  	filename += "_L" + to_string(L);
 	filename +=".csv";
@@ -389,23 +405,62 @@ int main(int argc, char *argv[]){
     pop_file << "generation,Npop,Apop,Spop,diversity,encountered,core_pop,core_size" << endl;
 
     do{
+		if (verbose){
+			cout << endl << "-------------------------" << endl;
+			cout << "Sub-Generation " << t << endl;
+			cout << "Npop = " << Npop << endl;
+			cout << "Apop = " << Apop << endl;
+			cout << "Spop = " << Spop << endl;
+		}
+
 		list<Species>::iterator sID = kill();       //choose an individual and kill with prob pkill
         
 		if(Npop == 0){ break; }                     //if population totally killed off, end
 		
 		if(sID == ecology.end()) sID = choose();	//if we killed the individual, choose another one
 		
-		double poff = poff(sID);
+		double pOff = poff(sID);
 
-		if( mt_rand() < poff ){				//individual reproduces with probability poff
+		//if(pSleep > pOff){
+		//	fall_Dormant(sID);
+		//	if (verbose){
+		//		cout << "	-Fell Dormant: " << pOff << endl;
+		//	}
+		//}
+		//else if(pWake < pOff){
+		//	wake_Up(sID);
+		//	if (verbose){
+		//		cout << "	-Awoke: " << pOff << endl;
+		//	}
+		//}
+
+
+		if( mt_rand() < pOff ){				//individual reproduces with probability poff
 			asexual(sID);		                    //reproduce asexually
 		}
+
+
+
+
 		++t; //counter
 
 		
 		if(t >= lgen){	//generation is over
 			t = 0; ++t_gens; lgen = Apop / pKill; //recalculate generation length
-			print_file(pop_file);		
+			print_file(pop_file);
+
+			double progress = float(t_gens) / float(MAX_GENS);
+			int barWidth = 70;
+
+    		cout << "[";
+    		int pos = barWidth * progress;
+   			for (int i = 0; i < barWidth; ++i) {
+        		if (i < pos) cout << "=";
+        		else if (i == pos) cout << ">";
+        		else cout << " ";
+    		}
+    		cout << "] " << int(progress * 100.0) << " %\r";
+    		cout.flush();		
 		}
 		
 	}while(t_gens < MAX_GENS); //stopping condition. run for MAX_GENS
