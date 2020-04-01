@@ -1,9 +1,5 @@
-<<<<<<< HEAD
-const FILENAME = "adormplot_seed0_C100.000000_mu0.100000_theta0.250000_pKill0.200000_pMute0.010000_pSleep0.000000_pWake1.100000_pInit500_L20.csv";
-=======
 const FILENAME = "dormplot_seed0_C100.000000_mu0.100000_theta0.250000_pKill0.200000_pMute0.010000_pSleep-0.100000_pWake1.100000_pInit500_L20.csv";
->>>>>>> c1edc9316b8e0c9f281cc023fae3643b31de6a8e
-
+const FIL = "2.csv"
 
 console.log("BEGIN");
     
@@ -38,7 +34,7 @@ console.log("BEGIN");
 
 
     //Read the data
-    d3.csv(FILENAME,    
+    d3.csv(FIL,    
 
       function(d){
         return { generation : +d.generation, Npop : +d.Npop }
@@ -58,6 +54,9 @@ console.log("BEGIN");
           .attr("class", "line")          
           .attr("d", valueline(data)) 
 
+        svg.append("path")
+          .attr("class", "line")          
+          .attr("d", valuelineAApop(data)) 
 
         svg.append("g")
           .attr("class", "x axis")
@@ -72,67 +71,32 @@ console.log("BEGIN");
         });
 
 
-    d3.csv(FILENAMEMIRROR,    
+        d3.csv(FILENAME,    
 
           function(d){
             return { generation : +d.generation, Npop : +d.Npop }
           },
-
-          
     
     
           function(data) {
         
-            
-            var color = d3.scale.category10();
+    
             
         
             // Add the line
             svg.append("path")
-              .attr("class", "line")
-              .style("stroke","#BA0000")
+              .attr("class", "line")          
               .attr("d", valueline(data)) 
-              
+    
+
+            svg.append("g")
+              .attr("class", "x axis")
+              .attr("transform", "translate(0," + height + ")")
+              .call(axisX);
+      
+            
+            svg.append("g")
+              .attr("class", "y axis")
+              .call(axisY);
     
             });
-
-        // function updateData() {
-
-        //     // Get the data again
-        //     d3.csv(FILENAME, 
-                
-        //         function(d){
-        //             return { generation : +d.generation, Npop : +d.Npop }
-        //           },
-        
-
-        //         function(data){
-
-        //             // Scale the range of the data again 
-        //             x.domain(d3.extent(data, function(d) { return d.generation; }));
-        //             y.domain([0, d3.max(data, function(d) { return d.Npop; })]);
-        
-        //             // Select the section we want to apply our changes to
-        //             var svg = d3.select("#my_dataviz").transition();
-        
-        //             // Make the changes
-        //             svg.select(".line")   // change the line
-        //                 .duration(250)
-        //                 .attr("d", valueline(data));
-        //             svg.select(".x.axis") // change the x axis
-        //                 .duration(250)
-        //                 .call(axisX);
-        //             svg.select(".y.axis") // change the y axis
-        //                 .duration(250)
-        //                 .call(axisY);
-        //         }
-        //     )
-        //     };
-  
-
-
-        // window.setInterval(function(){
-        //     updateData()
-        // }, 100);
-
-        
