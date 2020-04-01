@@ -1,8 +1,4 @@
-<<<<<<< HEAD
 const FILENAME = "adormplot_seed0_C100.000000_mu0.100000_theta0.250000_pKill0.200000_pMute0.010000_pSleep0.000000_pWake1.100000_pInit500_L20.csv";
-=======
-const FILENAME = "dormplot_seed0_C100.000000_mu0.100000_theta0.250000_pKill0.200000_pMute0.010000_pSleep-0.100000_pWake1.100000_pInit500_L20.csv";
->>>>>>> c1edc9316b8e0c9f281cc023fae3643b31de6a8e
 
 
 console.log("BEGIN");
