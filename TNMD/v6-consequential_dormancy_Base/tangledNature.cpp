@@ -143,6 +143,14 @@ inline void wakePop(list<Species>::iterator s){
 	Apop++;
 } 
 
+inline void setPop(list<Species>::iterator s){
+	s->awake_population = 1;
+	s->population = 1;
+
+	Npop++;
+	Apop++;
+} 
+
 inline void removePop(list<Species>::iterator s){
 	int t = Apop - s->awake_population;
 	s->awake_population--;
@@ -161,6 +169,14 @@ list<Species>::iterator searchNode(list<Species> &ecology, int n) {
 		if(cur->sID == n) return cur;
 	}
 	return ecology.end();
+}
+
+int findTrueAwakePopulation(list<Species> &ecology){
+	int out = 0;
+	for (list<Species>::iterator cur=ecology.begin(); cur != ecology.end(); ++cur){
+		out += cur->awake_population;
+	}
+	return out;
 }
 //////////////////////////
 
@@ -225,6 +241,9 @@ inline list<Species>::iterator kill_awake(){
 	cerr << "kill failed! Apop = " <<  Apop << endl;
 	cerr << "Npop =" << Npop << endl;
 	cerr << "rand " << rand << endl;
+	for (list<Species>::iterator cur=ecology.begin(); cur != ecology.end(); ++cur){
+		cerr << " -Species pop: " << cur->awake_population << endl;
+	}
 	exit(1);
 }
 
@@ -312,7 +331,9 @@ inline bitset<L> mutateOffspring(list<Species>::iterator elem){
 
 //generate offspring of species 'elem' with mutation
 inline void asexual(list<Species>::iterator elem){
+	int del = findTrueAwakePopulation(ecology) - Apop;
 	removePop(elem);
+	
 
 	bitset<L> bin_newA = mutateOffspring(elem);	//new individual genomes
     bitset<L> bin_newB = mutateOffspring(elem);
@@ -322,6 +343,8 @@ inline void asexual(list<Species>::iterator elem){
 		if(tmpNode == ecology.end()){ //if new species not on list
 			ecology.emplace_front(bin_newA.to_ulong(), 1); //add to lsit
 			encountered.insert(bin_newA.to_ulong());
+			tmpNode = searchNode(ecology, bin_newA.to_ulong());
+			setPop(tmpNode);
 		} else { //if new species already on list
 			addPop(tmpNode);
 		}	
@@ -334,13 +357,16 @@ inline void asexual(list<Species>::iterator elem){
 		if(tmpNode == ecology.end()){ //if new species not on list
 			ecology.emplace_front(bin_newB.to_ulong(), 1); //add to lsit
 			encountered.insert(bin_newB.to_ulong());
-            
+            tmpNode = searchNode(ecology, bin_newB.to_ulong());
+			setPop(tmpNode);
 		} else { //if new species already on list
 			addPop(tmpNode); //increase that species count by 1
 		}	
 	} else {  //no mutation	
 		addPop(elem); //increase original species count by 1
 	}
+
+	if (del != findTrueAwakePopulation(ecology) - Apop) cerr << "ERROR IN ASEXUAKL";
 }
 
 inline void fall_Dormant(list<Species>::iterator elem){
@@ -437,13 +463,7 @@ int main(int argc, char *argv[]){
     pop_file << "generation,Npop,Apop,ActualApop,Spop,diversity,encountered,core_pop,core_size" << endl;
 
     do{
-		if (verbose){
-			cout << endl << "-------------------------" << endl;
-			cout << "Sub-Generation " << t << endl;
-			cout << "Npop = " << Npop << endl;
-			cout << "Apop = " << Apop << endl;
-			cout << "Spop = " << Spop << endl;
-		}
+		
 
 		list<Species>::iterator sID = kill_awake();       //choose an individual and kill with prob pkill
         
@@ -473,8 +493,18 @@ int main(int argc, char *argv[]){
 		//		cout << "	-Awoke: " << pOff << endl;
 		//	}
 		//}
-
-
+		if (verbose){
+			cout << endl << "SUBGENERATION " << t << ":" << endl;
+			cout << "   NPop: " << Npop << endl;
+			cout << "   APop: " << Apop << endl;
+			cout << "   Actual: " << findTrueAwakePopulation(ecology) << endl;
+			for (list<Species>::iterator cur=ecology.begin(); cur != ecology.end(); ++cur){
+				cout << "   Species: " << cur->bin_sID << " (" << cur->bin_sID.to_ulong() << ")" << endl;
+				cout << "         APop: " << cur->awake_population << endl;
+				cout << "         Pop:  " << cur->population << endl;
+			}
+			cin;
+		}
 
 		++t; //counter
 
