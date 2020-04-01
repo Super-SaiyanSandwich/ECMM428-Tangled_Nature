@@ -113,11 +113,17 @@ list<Species> ecology;  //List of extant species
 unordered_set<int> encountered; //List of all encountered species
 
 inline void addPop(Species* s){
+	int t = Apop - s->awake_population;
+
 	s->awake_population++;
 	s->population++;
 
 	Npop++;
 	Apop++;
+
+	if (t != Apop - s->awake_population){
+		cout << "Error in AddPop";
+	}
 } 
 
 inline void sleepPop(Species* s){
@@ -137,11 +143,17 @@ inline void wakePop(Species* s){
 } 
 
 inline void removePop(Species* s){
+	int t = Apop - s->awake_population;
+
 	s->awake_population--;
 	s->population--;
 
 	Npop--;
 	Apop--;
+
+	if (t != Apop - s->awake_population){
+		cout << "Error in RemovePop";
+	}
 } 
 
 list<Species>::iterator searchNode(list<Species> &ecology, int n) {
@@ -374,7 +386,7 @@ int main(int argc, char *argv[]){
 
         it = 0;
         seed = 12345;
-        path = ".\\";
+        path = "";
     }
     else
     {
