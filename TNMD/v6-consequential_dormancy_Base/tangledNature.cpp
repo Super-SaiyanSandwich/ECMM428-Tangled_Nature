@@ -43,13 +43,13 @@ double sigma = 0;			    //scaling parameter for species environment interactions
 double pKill = 0.20;			    //probability of killing an individual
 double pMute = 0.01;            //probability of a mutation occurring
 
-double pSleep = -0.1;            
-double pWake = 1.1;
+double pSleep = 0.3;            
+double pWake = 0.5;
 
 double Amu = 0.1; 	            //environmental scaling factor - "resource abundance"
 double Smu = 0.01; 	            //environmental scaling factor - "resource abundance"
 
-const int Npop_INITIAL = 500;   //starting population
+const int Npop_INITIAL = 50;   //starting population
 int Npop = Npop_INITIAL;  		//total population tracker
 int Apop = Npop_INITIAL;        //total awake population tracker
 int Spop = 0;					//total dormant population tracker
@@ -146,6 +146,7 @@ inline void wakePop(list<Species>::iterator s){
 inline void setPop(list<Species>::iterator s){
 	s->awake_population = 1;
 	s->population = 1;
+	s->asleep_population = 0;
 
 	Npop++;
 	Apop++;
@@ -175,6 +176,14 @@ int findTrueAwakePopulation(list<Species> &ecology){
 	int out = 0;
 	for (list<Species>::iterator cur=ecology.begin(); cur != ecology.end(); ++cur){
 		out += cur->awake_population;
+	}
+	return out;
+}
+
+int findTrueAsleepPopulation(list<Species> &ecology){
+	int out = 0;
+	for (list<Species>::iterator cur=ecology.begin(); cur != ecology.end(); ++cur){
+		out += cur->asleep_population;
 	}
 	return out;
 }
@@ -238,11 +247,12 @@ inline list<Species>::iterator kill_awake(){
 
     // ERROR HANDLING (NO INDIVIDUAL CHOSEN)
 	
-	cerr << "kill failed! Apop = " <<  Apop << endl;
-	cerr << "Npop =" << Npop << endl;
+	cerr << "kill failed! "<< endl;
+	cerr << "Apop = " <<  Apop << endl;
+	cerr << "AActual = " << findTrueAwakePopulation(ecology) << endl;
 	cerr << "rand " << rand << endl;
 	for (list<Species>::iterator cur=ecology.begin(); cur != ecology.end(); ++cur){
-		cerr << " -Species pop: " << cur->awake_population << endl;
+		if (cur->awake_population > 0) cerr << " -Species pop: " << cur->awake_population << endl;
 	}
 	exit(1);
 }
@@ -261,8 +271,11 @@ inline list<Species>::iterator choose_awake(){
 	}
 	
     // ERROR HANDLING (NO INDIVIDUAL CHOSEN)
-	cerr << "choose failed! Npop = " <<  Apop << endl;
-	cerr << "rand " << rand << endl;
+	cerr << "awake choose failed! " << endl;
+	cerr << "Apop = " <<  Apop << endl;
+	cerr << "AActual = " << findTrueAwakePopulation(ecology) << endl;
+	cerr << "rand = " << rand << endl;
+	cerr << "rand * Apop = " << rand * Apop << endl;
 	exit(1);
 }
 
@@ -277,8 +290,11 @@ inline list<Species>::iterator choose_asleep(){
 	}
 	
     // ERROR HANDLING (NO INDIVIDUAL CHOSEN)
-	cerr << "choose failed! Npop = " <<  Apop << endl;
-	cerr << "rand " << rand << endl;
+	cerr << "asleep choose failed! " << endl;
+	cerr << "Spop = " <<  Spop << endl;
+	cerr << "SActual = " << findTrueAsleepPopulation(ecology) << endl;
+	cerr << "rand = " << rand << endl;
+	cerr << "rand * Spop = " << rand * Spop << endl;
 	exit(1);
 }
 
@@ -473,12 +489,12 @@ int main(int argc, char *argv[]){
 		
 		double pOff = poff(sID);
 
-		//if(pSleep > pOff){
-		//	fall_Dormant(sID);
-		//	if (verbose){
-		//		cout << "	-Fell Dormant: " << pOff << endl;
-		//	}
-		//}
+		if(pSleep > pOff){ // Species has an inate understanding of environment and if it's particularly bad it'll fall dormant
+			fall_Dormant(sID);
+			if (verbose){
+				cout << "	-Fell Dormant: " << pOff << endl;
+			}
+		}
 		
 
 
@@ -486,14 +502,15 @@ int main(int argc, char *argv[]){
 			asexual(sID);		                    //reproduce asexually
 		}
 
-		// if (sID->asleep_population == 0) sID = choose_asleep();
-		// if(pWake < pOff){
-		//	wake_Up(sID);
-		//	if (verbose){
-		//		cout << "	-Awoke: " << pOff << endl;
-		//	}
-		//}
-		if (verbose){
+		if (sID->asleep_population == 0) sID = choose_asleep();
+		if(pWake < pOff){
+			wake_Up(sID);
+			if (verbose){
+				cout << "	-Awoke: " << pOff << endl;
+			}
+		}
+
+		if (verbose){ // for debugging purposes
 			cout << endl << "SUBGENERATION " << t << ":" << endl;
 			cout << "   NPop: " << Npop << endl;
 			cout << "   APop: " << Apop << endl;
