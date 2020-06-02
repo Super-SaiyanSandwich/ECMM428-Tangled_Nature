@@ -1,5 +1,5 @@
-const FILENAME = "ddormplot_seed0_C100.000000_mu0.100000_theta0.250000_pKill0.200000_pMute0.010000_pSleep0.300000_pWake0.500000_pInit50_L20.csv";
-const FIL = "ddormplot_seed0_C100.000000_mu0.100000_theta0.250000_pKill0.200000_pMute0.010000_pSleep0.300000_pWake0.500000_pInit50_L20.csv";
+const FILENAME = "dormplot_seed0_C100.000000_mu0.100000_theta0.250000_pKill0.200000_pMute0.010000_pSleep0.100000_pWake0.300000_pInit50_L20.csv";
+const FIL = "dormplot_seed0_C100.000000_mu0.100000_theta0.250000_pKill0.200000_pMute0.010000_pSleep0.100000_pWake0.300000_pInit50_L20.csv";
 
 console.log("BEGIN");
     
@@ -34,10 +34,10 @@ console.log("BEGIN");
 
 
     //Read the data
-    d3.csv(FILENAME,    
+    d3.csv(FIL,    
 
       function(d){
-        return { generation : +d.generation, Npop : +d.Apop }
+        return { generation : +d.generation, Npop : +d.Spop }
       },
 
 
@@ -71,17 +71,17 @@ console.log("BEGIN");
         });
 
 
-        d3.csv(FIL,    
+        d3.csv(FILENAME,    
 
           function(d){
-            return { generation : +d.generation, Npop : +d.Spop }
+            return { generation : +d.generation, Npop : +d.Apop }
           },
     
     
           function(data) {
         
     
-            
+            //y.domain( [0, d3.max(data, function(d) { return d.Npop; })]);
         
             // Add the line
             svg.append("path")

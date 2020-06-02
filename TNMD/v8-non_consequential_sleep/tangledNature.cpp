@@ -372,11 +372,11 @@ inline double poff(list<Species>::iterator elem){
 
 
 inline double pSleep(double poff){
-	return max({1.0 - poff / pSleep_T, 0.0});
+	return max({1.0 - (poff / pSleep_T), 0.0});
 }
 
 inline double pWake(double poff){
-	return max({(poff - pWake_T)/(1-pWake_T), 0.0});
+	return max({(poff - pWake_T)/(0.6-pWake_T), 0.0});
 }
 
 
