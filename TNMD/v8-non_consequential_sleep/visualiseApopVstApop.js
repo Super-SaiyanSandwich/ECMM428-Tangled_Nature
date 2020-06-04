@@ -1,5 +1,5 @@
-const FILENAME = "dormplot_seed0_C100.000000_mu0.100000_theta0.250000_pKill0.200000_pMute0.010000_pSleep0.100000_pWake0.300000_pInit50_L20.csv";
-const FIL = "dormplot_seed0_C100.000000_mu0.100000_theta0.250000_pKill0.200000_pMute0.010000_pSleep0.100000_pWake0.300000_pInit50_L20.csv";
+const FILENAME = "dormplot_seed32676_C100.000000_mu0.100000_theta0.250000_pKill0.200000_pMute0.010000_pSleep0.100000_pWake0.300000_pInit50_L20.csv";
+const FIL = "dormplot_seed32676_C100.000000_mu0.100000_theta0.250000_pKill0.200000_pMute0.010000_pSleep0.100000_pWake0.300000_pInit50_L20.csv";
 
 console.log("BEGIN");
     
