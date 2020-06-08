@@ -50,9 +50,9 @@ double pWake_T = 0.3;			 //act as a dormancy bound
 double Amu = 0.1; 	            //environmental scaling factor - "resource abundance"
 double Smu = 0.0; 	            //environmental scaling factor - "resource abundance"
 
-const int Npop_INITIAL = 50;   //starting population
-int Npop = Npop_INITIAL;  		//total population tracker
-int Apop = Npop_INITIAL;        //total awake population tracker
+const int INITIAL_POPULATION = 50;   //starting population
+int Npop = INITIAL_POPULATION;  		//total population tracker
+int Apop = INITIAL_POPULATION;        //total awake population tracker
 int Spop = 0;					//total dormant population tracker
 
 //const double DORM_BOUND = 0.3;
@@ -224,7 +224,7 @@ inline void initialise_model(int model_seed){
     // Create the initial population with a random species
     int rs = random_species();
 	encountered.insert(rs);
-	ecology.emplace_front(rs, Npop_INITIAL);
+	ecology.emplace_front(rs, INITIAL_POPULATION);
 }
 
 
@@ -514,7 +514,7 @@ int main(int argc, char *argv[]){
 	filename += "_pMute" + to_string(pMute); 
 	filename += "_pSleep" + to_string(pSleep_T);
 	filename += "_pWake" + to_string(pWake_T);
-    filename += "_pInit" + to_string(Npop_INITIAL);
+    filename += "_pInit" + to_string(INITIAL_POPULATION);
  	filename += "_L" + to_string(L);
 	filename +=".csv";
 

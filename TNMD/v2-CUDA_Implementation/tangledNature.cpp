@@ -45,8 +45,8 @@ double pMute = 0.01;            //probability of a mutation occurring
 
 double mu = 0.1; 	            //environmental scaling factor - "resource abundance"
 
-const int Npop_INITIAL = 500;   //starting population
-int Npop = Npop_INITIAL;        //total population tracker
+const int INITIAL_POPULATION = 500;   //starting population
+int Npop = INITIAL_POPULATION;        //total population tracker
 
 const int MAX_GENS = 5000;      //termination condition
 
@@ -139,7 +139,7 @@ inline void initialise_model(int model_seed){
     // Create the initial population with a random species
     int rs = random_species();
 	encountered.insert(rs);
-	ecology.emplace_front(rs, Npop_INITIAL);
+	ecology.emplace_front(rs, INITIAL_POPULATION);
 }
 
 
@@ -339,7 +339,7 @@ int main(int argc, char *argv[]){
 	filename += "_theta" + to_string(theta); 
 	filename += "_pKill" + to_string(pKill); 
 	filename += "_pMute" + to_string(pMute); 
-    filename += "_pInit" + to_string(Npop_INITIAL);
+    filename += "_pInit" + to_string(INITIAL_POPULATION);
  	filename += "_L" + to_string(L);
 	filename +=".csv";
 
