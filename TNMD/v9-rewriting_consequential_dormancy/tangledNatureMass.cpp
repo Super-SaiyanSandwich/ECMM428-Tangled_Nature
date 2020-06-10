@@ -13,6 +13,7 @@
 #include <vector>
 #include <algorithm>
 #include <sys/time.h>
+#include <sys/stat.h>
 #include <stdio.h>
 #include <bitset>
 #include <stdlib.h>
@@ -185,7 +186,7 @@ list<Species>::iterator searchNode(list<Species> &ecology, int n) {
 
 inline void initialiseModel( int model_Seed){
 
-    default_random_engine generator(model_Seed + 123);
+    default_random_engine generator(model_Seed + 127);
     mt_generator = mt19937(model_Seed);
 
     double oC = sqrt(C);
@@ -196,6 +197,8 @@ inline void initialiseModel( int model_Seed){
         alpha[i] = oC * distribution( generator );
         beta[i] = oC * distribution( generator );
     }
+
+    ecology.clear();
 
     int random_specie = random_Species();
     encountered.insert(random_specie);
@@ -494,7 +497,8 @@ int find_True_Active_Population(){
 //////////////////////////
 
 int main(int argc, char *argv[]){
-    int it;
+    int iterations;
+    int it = 0;
     int seed;
     string path;
 	bool verbose = false;
@@ -502,9 +506,9 @@ int main(int argc, char *argv[]){
     // The following checks for additional inputs and sets the seed and path accordingly
     if(argc < 3)
     {
-        cerr << "No Seed or Path Inputted, Assuming Default (0, .\\)" << endl;
+        cerr << "No number of iterations or Path Inputted, Assuming Default (10, .\\)" << endl;
 
-        it = 13;
+        iterations = 10;
         seed = 12345;
         path = "";
     }
@@ -512,96 +516,107 @@ int main(int argc, char *argv[]){
     {
         if (argc > 3){
             verbose = true;
-        }
-        it = atoi(argv[1]);
-        seed = 123*it + 12345;
+        }        
+        iterations = atoi(argv[1]);
+        
         path = argv[2]; 
     }
 
-    initialiseModel(seed);
-
-    // Following used to check initialisation has worked correctly
-    //cerr << "Total Pop: " << total_Population << endl;
-    //cerr << ecology.begin()->species_ID << endl << ecology.begin()->total_population << endl << ecology.begin()->active_population;
-
-    int t = 0;
-    double generation_Length = active_Population / pKill_Acti;
-    string filename = path + "conqDormPlot_seed" + to_string(it);
+    
+    string folderName = path + "massDorm";
     // ADD HYPERPARAMETER VALUES HERE
-    filename += "_InitPop" + to_string(INITIAL_POPULATION);
-    filename += "_killActive" + to_string(pKill_Acti);
-    filename += "_killDormant" + to_string(pKill_Dorm);
-    filename += "_pDormant" + to_string(pDormant);
-    filename += "_muActive" + to_string(muActive);
-    filename += "_muDormant" + to_string(muDormant);
-    filename += "_pMutate" + to_string(pMutate);
-    filename += "_theta" + to_string(theta);
-    filename += "_dormancyType" + dormancy_Type();
-    filename += ".csv";
+    folderName += "_InitPop" + to_string(INITIAL_POPULATION);
+    folderName += "_killActive" + to_string(pKill_Acti);
+    folderName += "_killDormant" + to_string(pKill_Dorm);
+    folderName += "_pDormant" + to_string(pDormant);
+    folderName += "_muActive" + to_string(muActive);
+    folderName += "_muDormant" + to_string(muDormant);
+    folderName += "_pMutate" + to_string(pMutate);
+    folderName += "_theta" + to_string(theta);
+    folderName += "_dormancyType" + dormancy_Type();
+    
+    const char *fName = folderName.c_str();
 
-    ofstream population_File;
-    population_File.open(filename.c_str());
+    mkdir(fName, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 
-    population_File << "generation,Npop,Apop,Spop,diversity,encountered,core_pop,core_size" << endl;
 
-    do{
-        list<Species>::iterator current;
-        if(active_Population > 0){
-            current = select_Active();
-            current = kill_Active(current);
-        }
+    for (int it = 0; it < iterations; it++){
+        seed = 123*it + 12345;
 
-        if(active_Population > 0){
-            if (current == ecology.end()) current = select_Active(); 
+        initialiseModel(seed);
 
-            double current_pOff = pOff(current);
-            double rand = mt_rand();
+        // Following used to check initialisation has worked correctly
+        //cerr << "Total Pop: " << total_Population << endl;
+        //cerr << ecology.begin()->species_ID << endl << ecology.begin()->total_population << endl << ecology.begin()->active_population;
 
-            if(rand < current_pOff){
-                asexual(current);
-            }else if(go_Dormant(current, current_pOff, rand)){
-                current->goDormant();
+        int t = 0;
+        double generation_Length = active_Population / pKill_Acti;
+
+        ofstream population_File;
+
+        string filename = folderName + "/" + to_string(it) + ".csv";
+        population_File.open(filename.c_str());
+
+        population_File << "generation,Npop,Apop,Spop,diversity,encountered,core_pop,core_size" << endl;
+
+        do{
+            list<Species>::iterator current;
+            if(active_Population > 0){
+                current = select_Active();
+                current = kill_Active(current);
             }
-        }
 
-        if(dormant_Population > 0){
-            current = select_Dormant();
-            current = kill_Dormant(current);
-        }
+            if(active_Population > 0){
+                if (current == ecology.end()) current = select_Active(); 
 
+                double current_pOff = pOff(current);
+                double rand = mt_rand();
 
-        if(dormant_Population > 0){
-            if (current == ecology.end()) current = select_Dormant(); 
-
-            double current_pOff = pOff(current);
-            double rand = mt_rand();
-
-            if(rand < current_pOff){
-                current->becomeActive();
+                if(rand < current_pOff){
+                    asexual(current);
+                }else if(go_Dormant(current, current_pOff, rand)){
+                    current->goDormant();
+                }
             }
-        }
 
-        t++;        
-
-        if (verbose){
-            int sum = 0;
-            for (list<Species>::iterator cur=ecology.begin(); cur != ecology.end(); ++cur){
-                sum += cur->active_population;
+            if(dormant_Population > 0){
+                current = select_Dormant();
+                current = kill_Dormant(current);
             }
-            cout << "\nSUBGEN: " << t <<  ", ACTIVE POP: " << active_Population << ", ACTUAL" << sum << endl;
-        }
 
-        if(t >= generation_Length){	//generation is over
-			t = 0; ++generation;
-            garbage_Collection();
-            generation_Length = active_Population / pKill_Acti; //recalculate generation length
-			print_To_File(population_File);
 
-			print_Progress_Bar(float(generation) / float(MAX_GENS));    			
-		}
+            if(dormant_Population > 0){
+                if (current == ecology.end()) current = select_Dormant(); 
 
-    }while(generation < MAX_GENS);
-    population_File.close();
+                double current_pOff = pOff(current);
+                double rand = mt_rand();
 
+                if(rand < current_pOff){
+                    current->becomeActive();
+                }
+            }
+
+            t++;        
+
+            if (verbose){
+                int sum = 0;
+                for (list<Species>::iterator cur=ecology.begin(); cur != ecology.end(); ++cur){
+                    sum += cur->active_population;
+                }
+                cout << "\nSUBGEN: " << t <<  ", ACTIVE POP: " << active_Population << ", ACTUAL" << sum << endl;
+            }
+
+            if(t >= generation_Length){	//generation is over
+                t = 0; ++generation;
+                garbage_Collection();
+                generation_Length = active_Population / pKill_Acti; //recalculate generation length
+                print_To_File(population_File);
+
+                print_Progress_Bar(float(generation) / float(MAX_GENS));    			
+            }
+
+        }while(generation < MAX_GENS);
+        population_File.close();
+    }
     return 0; // Complete with no errors
 }
