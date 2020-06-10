@@ -185,6 +185,7 @@ list<Species>::iterator searchNode(list<Species> &ecology, int n) {
 /////////////////////////
 
 inline void initialiseModel( int model_Seed){
+    
 
     default_random_engine generator(model_Seed + 127);
     mt_generator = mt19937(model_Seed);
@@ -199,6 +200,9 @@ inline void initialiseModel( int model_Seed){
     }
 
     ecology.clear();
+    active_Population = 0;
+    total_Population = 0;
+    dormant_Population = 0;   
 
     int random_specie = random_Species();
     encountered.insert(random_specie);
