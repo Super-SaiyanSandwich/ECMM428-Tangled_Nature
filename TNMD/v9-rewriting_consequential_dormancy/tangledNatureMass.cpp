@@ -51,7 +51,7 @@ const double C = 100;             // Scaling parameter for interspecies interact
 
 
 const double pKill_Acti = 0.20;   // Probability of killing an active individual
-const double pKill_Dorm = 0.010;  // Probability of killing a dormant individual
+const double pKill_Dorm = 0.020;  // Probability of killing a dormant individual
 
 const double pMutate = 0.01;      // Probability of mutating
 
