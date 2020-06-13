@@ -44,25 +44,25 @@ using namespace std;
 /////////////////////
 
 int generation = 0;               // Current generational number
-const int MAX_GENS = 5000;        // Maximum number of generations
+const int MAX_GENS = 10000;        // Maximum number of generations
 
 
 const double C = 100;             // Scaling parameter for interspecies interactions
 
 
-const double pKill_Acti = 0.20;   // Probability of killing an active individual
-const double pKill_Dorm = 0.020;  // Probability of killing a dormant individual
+double pKill_Acti = 0.20;   // Probability of killing an active individual
+double pKill_Dorm = 0.020;  // Probability of killing a dormant individual
 
 const double pMutate = 0.01;      // Probability of mutating
 
-const double tDormant = 0.10;     // Threshold "pOff" for individual to become dormant (not implemented) ¹
-const double tActive = 0.40;      // Threshold "pOff" for individual to become active (not implemented) ²
+//const double tDormant = 0.10;     // Threshold "pOff" for individual to become dormant (not implemented) ¹
+//const double tActive = 0.40;      // Threshold "pOff" for individual to become active (not implemented) ²
 
-const double pDormant = 0.01;     // Probability of individual becoming dormant ²
-const double pActive = 0.50;      // Probability of individual becoming active ²
+double pDormant = 0.01;     // Probability of individual becoming dormant ²
+double pActive = 0.50;      // Probability of individual becoming active ²
 
-const double muDormant = 0.005;   // Scaling factor of dormant individual's pressure on resources ²
-const double muActive = 0.10;     // Scaling factor of active individual's pressure on resources ²
+double muDormant = 0.005;   // Scaling factor of dormant individual's pressure on resources ²
+double muActive = 0.10;     // Scaling factor of active individual's pressure on resources ²
 
 // ¹ (Has no effect if >= 1.0)
 // ² (Has no effect if <= 0.0)
@@ -496,37 +496,12 @@ int find_True_Active_Population(){
 }
 
 
+
 //////////////////////////
-//        Main
+// Tangled Nature
 //////////////////////////
+void mass_tnm(string path = "./", int iterations = 1, bool verbose = false){
 
-int main(int argc, char *argv[]){
-    int iterations;
-    int it = 0;
-    int seed;
-    string path;
-	bool verbose = false;
-
-    // The following checks for additional inputs and sets the seed and path accordingly
-    if(argc < 3)
-    {
-        cerr << "No number of iterations or Path Inputted, Assuming Default (10, .\\)" << endl;
-
-        iterations = 10;
-        seed = 12345;
-        path = "";
-    }
-    else
-    {
-        if (argc > 3){
-            verbose = true;
-        }        
-        iterations = atoi(argv[1]);
-        
-        path = argv[2]; 
-    }
-
-    
     string folderName = path + "massDorm";
     // ADD HYPERPARAMETER VALUES HERE
     folderName += "_InitPop" + to_string(INITIAL_POPULATION);
@@ -544,8 +519,8 @@ int main(int argc, char *argv[]){
     mkdir(fName, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 
 
-    for (int it = 0; it < iterations; it++){
-        seed = 123*it + 12345;
+    for (int ite = 0; ite < iterations; ite++){
+        int seed = 123*ite + 12345;
 
         initialiseModel(seed);
 
@@ -558,7 +533,7 @@ int main(int argc, char *argv[]){
 
         ofstream population_File;
 
-        string filename = folderName + "/" + to_string(it) + ".csv";
+        string filename = folderName + "/" + to_string(ite) + ".csv";
         population_File.open(filename.c_str());
 
         population_File << "generation,Npop,Apop,Spop,diversity,encountered,core_pop,core_size" << endl;
@@ -622,5 +597,43 @@ int main(int argc, char *argv[]){
         }while(generation < MAX_GENS);
         population_File.close();
     }
-    return 0; // Complete with no errors
+
+}
+
+
+//////////////////////////
+//        Main
+//////////////////////////
+
+namespace tangledNatureMass{
+    int main(int argc, char *argv[]){
+        int iterations;
+        int it = 0;
+        int seed;
+        string path;
+        bool verbose = false;
+
+        // The following checks for additional inputs and sets the seed and path accordingly
+        if(argc < 3)
+        {
+            cerr << "No number of iterations or Path Inputted, Assuming Default (10, .\\)" << endl;
+
+            iterations = 10;
+            seed = 12345;
+            path = "";
+        }
+        else
+        {
+            if (argc > 3){
+                verbose = true;
+            }        
+            iterations = atoi(argv[1]);
+            
+            path = argv[2]; 
+        }
+
+        
+        
+        return 0; // Complete with no errors
+    }
 }
