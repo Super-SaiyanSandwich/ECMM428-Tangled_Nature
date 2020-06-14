@@ -507,6 +507,7 @@ void mass_tnm(string path = "./", int iterations = 1, bool verbose = false){
     folderName += "_InitPop" + to_string(INITIAL_POPULATION);
     folderName += "_killActive" + to_string(pKill_Acti);
     folderName += "_killDormant" + to_string(pKill_Dorm);
+    folderName += "_pActive" + to_string(pActive);
     folderName += "_pDormant" + to_string(pDormant);
     folderName += "_muActive" + to_string(muActive);
     folderName += "_muDormant" + to_string(muDormant);
