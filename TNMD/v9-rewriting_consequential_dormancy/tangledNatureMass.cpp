@@ -597,7 +597,7 @@ void mass_tnm(string path = "./", int iterations = 1, bool verbose = false){
 
         }while(generation < MAX_GENS);
         population_File.close();
-        cout << endl;
+        //cout << endl;
     }
 
 }
