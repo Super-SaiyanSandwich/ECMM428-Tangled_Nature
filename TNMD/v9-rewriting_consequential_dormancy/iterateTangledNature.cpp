@@ -9,10 +9,12 @@ int main(int argc, char *argv[]){
 
     for( int pkill_dorm = 0; pkill_dorm <= 20; pkill_dorm++)
     {
-    for( int mudormant = 0; mudormant <= 5; mudormant++)
+    //for( int mudormant = 0; mudormant <= 5; mudormant++)
+    for( int mudormant = 1; mudormant <= 5; mudormant++)
     {
     for( int pdormant = 0; pdormant <= 40; pdormant++)
     {
+        std::cout << "Done pdormant" << endl;
     for( int pactive = 5; pactive <= 15; pactive++)
     {
         pActive = pactive / 10.0;

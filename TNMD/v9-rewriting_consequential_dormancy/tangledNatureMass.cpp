@@ -464,8 +464,8 @@ inline void print_To_File(ofstream &pop_file, double percent=0.05){ //percent = 
 }
 
 
-inline void print_Progress_Bar(double progress, int ite){
-    cout << to_string(ite) << " :[";
+inline void print_Progress_Bar(double progress){
+    cout << " :[";
     int pos = progress * barwidth;
    	for (int i = 0; i < barwidth; ++i) {
         if (i < pos) cout << "=";
@@ -591,12 +591,12 @@ void mass_tnm(string path = "./", int iterations = 1, bool verbose = false){
                 garbage_Collection();
                 generation_Length = active_Population / pKill_Acti; //recalculate generation length
                 print_To_File(population_File);
-
-                print_Progress_Bar(float(generation) / float(MAX_GENS), ite);    			
+                   			
             }
 
         }while(generation < MAX_GENS);
         population_File.close();
+        print_Progress_Bar(float(ite) / float(iterations)); 
         //cout << endl;
     }
 
