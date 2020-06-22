@@ -10,7 +10,7 @@ int main(int argc, char *argv[]){
     for( int pkill_dorm = 0; pkill_dorm <= 20; pkill_dorm++)
     {
     //for( int mudormant = 0; mudormant <= 5; mudormant++)
-    for( int mudormant = 1; mudormant <= 5; mudormant++)
+    for( int mudormant = 2; mudormant <= 5; mudormant++)
     {
     for( int pdormant = 0; pdormant <= 40; pdormant++)
     {
