@@ -607,8 +607,7 @@ void mass_tnm(string path = "./", int iterations = 1, bool verbose = false){
 //        Main
 //////////////////////////
 
-namespace tangledNatureMass{
-    int main(int argc, char *argv[]){
+int main(int argc, char *argv[]){
         int iterations;
         int it = 0;
         int seed;
@@ -622,7 +621,7 @@ namespace tangledNatureMass{
 
             iterations = 10;
             seed = 12345;
-            path = "";
+            path = "./";
         }
         else
         {
@@ -634,8 +633,7 @@ namespace tangledNatureMass{
             path = argv[2]; 
         }
 
-        
+        mass_tnm(path,10);
         
         return 0; // Complete with no errors
     }
-}
