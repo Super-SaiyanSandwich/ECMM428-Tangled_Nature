@@ -44,7 +44,7 @@ using namespace std;
 /////////////////////
 
 int generation = 0;               // Current generational number
-const int MAX_GENS = 10000;        // Maximum number of generations
+const int MAX_GENS = 10;        // Maximum number of generations
 
 
 const double C = 100;             // Scaling parameter for interspecies interactions
@@ -199,10 +199,13 @@ inline void initialiseModel( int model_Seed){
         beta[i] = oC * distribution( generator );
     }
 
+    
     ecology.clear();
+    encountered.clear();
     active_Population = 0;
     total_Population = 0;
     dormant_Population = 0;   
+    generation = 0;
 
     int random_specie = random_Species();
     encountered.insert(random_specie);
@@ -519,6 +522,9 @@ void mass_tnm(string path = "./", int iterations = 1, bool verbose = false){
 
     mkdir(fName, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 
+    ofstream population_File;
+    string filename;
+
 
     for (int ite = 0; ite < iterations; ite++){
         int seed = 123*ite + 12345;
@@ -532,9 +538,7 @@ void mass_tnm(string path = "./", int iterations = 1, bool verbose = false){
         int t = 0;
         double generation_Length = active_Population / pKill_Acti;
 
-        ofstream population_File;
-
-        string filename = folderName + "/" + to_string(ite) + ".csv";
+        filename = folderName + "/" + to_string(ite) + ".csv";
         population_File.open(filename.c_str());
 
         population_File << "generation,Npop,Apop,Spop,diversity,encountered,core_pop,core_size" << endl;
