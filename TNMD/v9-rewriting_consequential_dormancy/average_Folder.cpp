@@ -122,18 +122,17 @@ int main(int argc, char *argv[]){
         pKill_Dorm = pkill_dorm / 100.0;
         
         string path = "massDorm";
-        string folderName = path + "massDorm";
-        folderName += "_InitPop" + to_string(InitPop);
-        folderName += "_killActive" + to_string(pKill_Acti);
-        folderName += "_killDormant" + to_string(pKill_Dorm);
-        folderName += "_pActive" + to_string(pActive);
-        folderName += "_pDormant" + to_string(pDormant);
-        folderName += "_muActive" + to_string(muActive);
-        folderName += "_muDormant" + to_string(muDormant);
-        folderName += "_pMutate" + to_string(pMutate);
-        folderName += "_theta" + to_string(theta);
-        folderName += "_dormancyTypeRIIS";
-        averageFolder("massDorm_InitPop");
+        path += "_InitPop" + to_string(InitPop);
+        path += "_killActive" + to_string(pKill_Acti);
+        path += "_killDormant" + to_string(pKill_Dorm);
+        path += "_pActive" + to_string(pActive);
+        path += "_pDormant" + to_string(pDormant);
+        path += "_muActive" + to_string(muActive);
+        path += "_muDormant" + to_string(muDormant);
+        path += "_pMutate" + to_string(pMutate);
+        path += "_theta" + to_string(theta);
+        path += "_dormancyTypeRIIS";
+        averageFolder(path);
     }
     }
     }
