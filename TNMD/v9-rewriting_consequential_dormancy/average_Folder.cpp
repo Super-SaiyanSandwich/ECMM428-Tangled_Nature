@@ -16,12 +16,7 @@ int averageFolder(string path){
     int file_Count = 0;
     fstream file_In; 
 
-    size_t found_Start = path.find("_mGen");
-    size_t found_Len = path.find("_", found_Start + 5);
-
-    found_Len -= found_Start + 5;
-
-    int m_Gen = stoi(path.substr(found_Start + 5 , found_Len));
+    int m_Gen = 10000;
 
     float* totals = new float[m_Gen];
     //totals = {0};
@@ -34,7 +29,7 @@ int averageFolder(string path){
         try
         {
             cout << "Opening File " << file_Count << endl; 
-            file_In.open("./" + path + to_string(file_Count) + ".csv", ios::in); 
+            file_In.open("./" + path + "/" + to_string(file_Count) + ".csv", ios::in); 
         }
         catch (int e)
         {
