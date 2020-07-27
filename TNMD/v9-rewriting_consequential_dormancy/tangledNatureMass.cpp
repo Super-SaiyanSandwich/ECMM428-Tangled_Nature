@@ -44,7 +44,7 @@ using namespace std;
 /////////////////////
 
 int generation = 0;               // Current generational number
-const int MAX_GENS = 10;        // Maximum number of generations
+const int MAX_GENS = 10000;        // Maximum number of generations
 
 
 const double C = 100;             // Scaling parameter for interspecies interactions
@@ -611,6 +611,7 @@ void mass_tnm(string path = "./", int iterations = 1, bool verbose = false){
 //        Main
 //////////////////////////
 
+namespace TangledNatureMass{
 int main(int argc, char *argv[]){
         int iterations;
         int it = 0;
@@ -641,3 +642,4 @@ int main(int argc, char *argv[]){
         
         return 0; // Complete with no errors
     }
+}
