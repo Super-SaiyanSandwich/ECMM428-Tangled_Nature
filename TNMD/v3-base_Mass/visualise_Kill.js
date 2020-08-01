@@ -47,7 +47,7 @@ console.log("BEGIN");
 
 
     //Read the data
-    d3.csv(k015,    
+    d3.csv(k020,    
 
       function(d){
         return { generation : +d.generation, Npop : +d.Npop }
@@ -83,12 +83,12 @@ console.log("BEGIN");
           .attr("dy", ".35em")
           .attr("text-anchor", "start")
           .style("fill", "#4682B4")
-           .text("Kill Chance = 0.15");
+           .text("Kill Chance = 0.20");
 
         });
 
 
-    d3.csv(k020,    
+    d3.csv(k015,    
 
           function(d){
             return { generation : +d.generation, Npop : +d.Npop }
@@ -113,7 +113,7 @@ console.log("BEGIN");
               .attr("dy", ".35em")
               .attr("text-anchor", "start")
               .style("fill", "#BA0000")
-               .text("Kill Chance = 0.20");
+               .text("Kill Chance = 0.15");
             });
 
       d3.csv(k025,    
